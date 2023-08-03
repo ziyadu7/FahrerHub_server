@@ -1,0 +1,74 @@
+const mongoose = require('mongoose')
+
+const rideShema = mongoose.Schema({
+    from:{
+        type:String,
+        required:true
+    },
+    destination:{
+        type:String,
+        required:true
+    },
+    startDate:{
+        type:Date,
+        required:true
+    },
+    endDate:{
+        type:Date,
+        required:true
+    },
+    maxRiders:{
+        type:Number,
+        required:true
+    },
+    head:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    },
+    club:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Club'
+    },
+    description:{
+        type:String,
+    },
+    image:{
+        type:String
+    },
+    riders:[{
+        rider:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
+        },
+        isSure:{
+            type:Boolean
+        }
+    }],
+    isBlocked:{
+        type:Boolean,
+        default:false
+    },
+    isAccepted:{
+        type:Boolean,
+        default:false
+    },
+    fromLocation:{
+        longitude:{
+            type:Number,
+        },
+        latitude:{
+            type:Number
+        }
+    },
+    destinationLocation:{
+        longitude:{
+            type:Number
+        },
+        latitude:{
+            type:Number
+        }
+    }
+})
+
+
+module.exports = mongoose.model("Rides",rideShema)
