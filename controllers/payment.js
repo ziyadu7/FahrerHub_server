@@ -4,28 +4,6 @@ const rentModel = require('../models/rentModel')
 require('dotenv').config()
 
 const stripe = Stripe(process.env.STRIPE_KEY)
-// const stripe = require('stripe')('sk_test_...');
-
-// const createRent = async (customer,data) =>{
-//     try {
-//         console.log(customer.metadata);
-//         const values = customer.metadata
-
-// const newRent = await rentModel.create({
-//     user:values.userId,
-//     bike:values.bikeId,
-//     fromDate:values.fromDate,
-//     toDate:values.toDate,
-//     amount:values.amount,
-//     bookedAt:new Date()
-// })
-
-
-//         /////ADD SUCCESS  MAIL////
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 
 
 
