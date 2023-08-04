@@ -45,16 +45,19 @@ const io = require('socket.io')(server,{
 io.on('connection',(socket)=>{
     console.log('connectionon');
     socket.on('setup',(userId)=>{
+        console.log('connected');
         socket.join(userId)
         socket.emit('connected')
     })
 
     socket.on('joinChat',(room)=>{
+        console.log('joined chat');
         socket.join(room);
     })
 
     socket.on('new message',(newMessage,room) => {
-         io.emit('messageResponse', newMessage,room);
+        console.log('message sendig');
+        io.emit('messageResponse', newMessage,room);
      });
 
      socket.on('disconnect', () => {
