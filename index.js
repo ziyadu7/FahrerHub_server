@@ -43,7 +43,7 @@ const io = require('socket.io')(server,{
 
 
 io.on('connection',(socket)=>{
-
+    console.log('connectionon');
     socket.on('setup',(userId)=>{
         socket.join(userId)
         socket.emit('connected')
