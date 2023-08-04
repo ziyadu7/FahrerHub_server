@@ -34,7 +34,7 @@ const server = app.listen(process.env.PORT,()=>{
 
 const io = require('socket.io')(server,{
     cors: {
-        origin: process.env.FRONTENDURL,
+        origin:'*',
         // methods: ['GET', 'POST'],
         // allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true
