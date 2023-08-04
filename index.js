@@ -51,12 +51,14 @@ io.on('connection',(socket)=>{
     })
 
     socket.on('joinChat',(room)=>{
+        console.log(room);
         console.log('joined chat');
         socket.join(room);
     })
 
     socket.on('new message',(newMessage,room) => {
-        console.log('message sendig');
+        console.log('message sendig',room);
+        console.log(newMessage,'====');
         io.emit('messageResponse', newMessage,room);
      });
 
