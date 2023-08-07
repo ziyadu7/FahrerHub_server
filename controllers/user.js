@@ -296,13 +296,20 @@ const loadProfile = async (req, res) => {
 
 const editProfile = async (req, res) => {
     try {
-        let { name, profileImage, phone } = req.body
+        let { name, profileImage, mobile } = req.body
         name = name.trim()
-        const user = await userModel.findOne({phone})
+        let user = null
+        if(mobile){
+             user = await userModel.findOne({phone:mobile})
+        }
         if(user){
             res.status(404).json({errMsg:"Mobile number already exist"})
         }else{
-            await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage, phone } })
+            if(mobile){
+                await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage, phone:mobile } })
+            }else{
+            await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage} })
+            }
             res.status(200).json({ message: "Profile updated successfully" })
         }
     } catch (error) {
