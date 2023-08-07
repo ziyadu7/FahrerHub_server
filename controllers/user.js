@@ -33,7 +33,7 @@ const sendVerifyMail = async (name, email, userId) => {
             from: 'trendsetterfas@gmail.com',
             to: email,
             subject: 'Email verification',
-            html: `<p>Hii ${name}, please click <a href="${FRONTENDURL}/emailVerify/${userId}">here</a> to verify your email.</p>`,
+            html: `<p>Hii ${name}, please click <a href="${process.env.FRONTENDURL}/emailVerify/${userId}">here</a> to verify your email.</p>`,
         };
 
         transporter.sendMail(mailOption, (error, info) => {
@@ -94,7 +94,6 @@ const verifyMail = async (req, res, next) => {
         await userModel.updateOne({ _id: userId }, { $set: { isVerified: true } })
         res.status(200).json({ message: "Email verifed successfully" })
     } catch (error) {
-        console.log(error.message);
         next(error.message)
     }
 }
@@ -237,7 +236,6 @@ const googleLogin = async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error.message);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -270,7 +268,6 @@ const getSingleBike = async (req, res) => {
         const currentUser = await rentModel.findOne({ $and: [{ bike: bikeId }, { fromDate: { $lte: currentDate } }, { toDate: { $gte: new Date() } }] }).populate('user')
         res.status(200).json({ isReview, bike, currentUser, isBooked })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -309,7 +306,6 @@ const editProfile = async (req, res) => {
             res.status(200).json({ message: "Profile updated successfully" })
         }
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -353,7 +349,6 @@ const getClubs = async (req, res) => {
         }).populate('admins.admin');
         res.status(200).json({ clubs, protClubs })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -369,7 +364,6 @@ const removeRequest = async (req, res) => {
 
         res.status(200).json({ message: 'Request removed' })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -397,7 +391,6 @@ const getYourClubs = async (req, res) => {
 
         res.status(200).json({ clubs, reqClubs })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -420,7 +413,6 @@ const joinClub = async (req, res) => {
             res.status(200).json({ message: "Joined successfully" })
         }
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -442,7 +434,6 @@ const addReview = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -457,7 +448,6 @@ const returnBike = async (req, res) => {
         await bikeModel.updateOne({ _id: bikeId }, { $set: { isBooked: false } })
         res.status(200).json({ message: 'Status changed successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -484,7 +474,6 @@ const paymentSuccess = async (req, res) => {
         res.redirect(`${process.env.FRONTENDURL}/paymentSuccess/${load}`)
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -495,7 +484,6 @@ const paymentFail = async (req, res) => {
         res.redirect(`${process.env.FRONTENDURL}/paymentFail`)
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -511,7 +499,6 @@ const addQuestion = async (req, res) => {
         res.status(200).json({ message: 'Question added successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -524,7 +511,6 @@ const getQuestions = async (req, res) => {
         res.status(200).json({ questions })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -546,7 +532,6 @@ const addAnswer = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -571,7 +556,6 @@ const addLike = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -596,7 +580,6 @@ const disLike = async (req, res) => {
         res.status(200).json({ message: 'diLiked successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -612,7 +595,6 @@ const addBike = async (req, res) => {
         res.status(200).json({ message: 'Bike added successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 
@@ -629,7 +611,6 @@ const editBike = async (req, res) => {
         res.status(200).json({ message: 'Bike edited successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
-        console.log(error);
     }
 }
 

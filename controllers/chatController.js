@@ -33,8 +33,7 @@ const accessChat = async (req, res) => {
             res.status(200).json({ chat, messages })
         }
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ errMsg: error.message })
+        res.status(500).json({ errMsg: 'Server error' })
     }
 }
 
@@ -52,8 +51,7 @@ const getUsers = async (req, res) => {
         res.status(200).json({ head, users })
 
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ errMsg: error.message })
+        res.status(500).json({ errMsg: 'Server error' })
     }
 }
 
@@ -69,8 +67,7 @@ const addMessage = async (req, res) => {
         await chatModel.updateOne({ _id: chatId }, { $set: { latestMessage: msg._id } })
         res.status(200).json({ msg,chatId })
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ errMsg: error.message })
+        res.status(500).json({ errMsg: 'Server error' })
     }
 }
 

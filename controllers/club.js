@@ -41,7 +41,6 @@ const exitClub = async (req, res) => {
         const clubId = req.body.id
         const userId = req.payload.userId
 
-        // await userModel.updateOne({_id:userId},{$pull:{clubs:{club:clubId}}})
         const ride = await rideModel.find({ club: clubId, 'riders.rider': userId })
         if (ride.length > 0) {
             res.status(409).json({ errMsg: 'You included in a ride first left from the ride' })
@@ -92,7 +91,6 @@ const createRide = async (req, res) => {
             res.status(200).json({ message: "Ride Created Successfully" })
         }
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -121,7 +119,6 @@ const getRides = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -159,7 +156,6 @@ const loadSingleRide = async (req, res) => {
         res.status(200).json({ ride, isJoined, isSure })
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -202,7 +198,6 @@ const joinRide = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -223,7 +218,6 @@ const confirmRide = async (req, res) => {
 
         res.status(200).json({ message: "Confirmation Success" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -239,7 +233,6 @@ const getImages = async (req, res) => {
         const images = club.rideImages
         res.status(200).json({ images })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -272,7 +265,6 @@ const removeRider = async (req, res) => {
         }
         res.status(200).json({ message: 'Removed successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -304,7 +296,6 @@ const leftRide = async (req, res) => {
         }
         res.status(200).json({ message: 'left successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -320,7 +311,6 @@ const getRiders = async (req, res) => {
         const admin = club.admins[0]
         res.status(200).json({ riders, admin })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

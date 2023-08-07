@@ -5,8 +5,6 @@ require('dotenv').config()
 
 const stripe = Stripe(process.env.STRIPE_KEY)
 
-
-
 const createCheckoute = async (req, res) => {
   try {
 
@@ -77,29 +75,6 @@ const createCheckoute = async (req, res) => {
   }
 }
 
-
-const webhook = async (req, resp) => {
-  try {
-    const data = req.body.data.object
-    const eventType = req.body.type
-
-    if (eventType === 'checkout.session.completed') {
-      stripe.customers.retrieve(data.customer).then((customer) => {
-        createRent(customer, data)
-      }).catch((err) => {
-        console.log(err.message);
-      })
-    }
-
-    resp.send().end();
-
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-
 module.exports = {
   createCheckoute,
-  webhook
 }

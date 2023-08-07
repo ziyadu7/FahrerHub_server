@@ -27,14 +27,13 @@ function rideBlockMail(reason, name, email, adminName) {
               <p>Dear ${name},</p>
               <p>${reason}</h4>
               <p>${adminName}<br>
-              RIDERS Rents Co.</p>
+              Fahrer Hub Co.</p>
             </body>
           </html>`
         }
 
         transporter.sendMail(mailOption, (error, info) => {
             if (error) {
-                res.status(424).json({ errMsg: 'Email could not be sent' })
                 console.log(error.message);
                 console.log('Email could not be sent')
             } else {
@@ -43,7 +42,6 @@ function rideBlockMail(reason, name, email, adminName) {
             }
         })
     } catch (error) {
-        res.status(424).json({ errMsg: 'Error occurred while sending email' })
         console.log(error);
         console.log('Error occurred while sending email');
     }
@@ -57,7 +55,6 @@ const getClub = async (req, res) => {
         const club = await clubModel.findOne({ _id: clubId })
         res.status(200).json({ club })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -68,12 +65,10 @@ const getMembers = async (req, res) => {
     try {
         const clubId = req.payload.clubId
 
-        // const members = await userModel.find({$and:[{'clubs.club':clubId},{'clubs.isAdmin':false}]})
         const club = await clubModel.findOne({ _id: clubId }).populate('members.member')
         const members = club.members
         res.status(200).json({ members })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -93,7 +88,6 @@ const removeMember = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -109,7 +103,6 @@ const editClub = async (req, res) => {
         await clubModel.updateOne({ _id: clubId }, { $set: { clubName, city, startedYear, logo } })
         res.status(200).json({ message: "Club updated successfully" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -124,7 +117,6 @@ const getImages = async (req, res) => {
         const images = club.rideImages
         res.status(200).json({ images })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -141,7 +133,6 @@ const addImage = async (req, res) => {
         res.status(200).json({ message: "Image added successfully" })
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -157,7 +148,6 @@ const removeImage = async (req, res) => {
         await clubModel.updateOne({ _id: clubId }, { $pull: { rideImages: { _id: imageId } } })
         res.status(200).json({ message: "image removed successfully" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -168,14 +158,12 @@ const removeImage = async (req, res) => {
 const blockRide = async (req, res) => {
     try {
         const { reason, email, name, rideId } = req.body
-        console.log(reason, email, name, rideId);
         const { userId } = req.payload
         const admin = await userModel.findOne({ _id: userId })
         rideBlockMail(reason, name, email, admin.name)
         await rideModel.updateOne({ _id: rideId }, { $set: { isBlocked: true } })
         res.status(200).json({ message: "Ride blocked successfully" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -190,7 +178,6 @@ const unBlockRide = async (req, res) => {
         res.status(200).json({ message: "Ride unblocked successfully" })
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -205,7 +192,6 @@ const cancelRide = async (req, res) => {
         await rideModel.deleteOne({ _id: rideId })
         res.status(200).json({ message: 'Ride removed successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -220,7 +206,6 @@ const allowRide = async (req, res) => {
         await rideModel.updateOne({ _id: rideId }, { $set: { isAccepted: true } })
         res.status(200).json({ message: "Ride allowed successfully" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -238,7 +223,6 @@ const requestManage = async (req, res) => {
         }
         res.status(200).json({ message: "Status changed successfully" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

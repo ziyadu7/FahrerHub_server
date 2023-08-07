@@ -57,7 +57,7 @@ function rentMailSend(name, email, bike, rent, adminName) {
               
               Best regards,</p>
               <p>${adminName}
-              RIDERS Rents Co.</p>
+              Fahrer Hub Co.</p>
             </body>
           </html>`
         }
@@ -67,7 +67,6 @@ function rentMailSend(name, email, bike, rent, adminName) {
                 console.log(error.message);
                 console.log('Email could not be sent')
             } else {
-                res.status(200).json({ message: "Email Send" })
                 console.log('Email has been sent:', info.response)
             }
         })
@@ -83,7 +82,6 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const admin = await superAdminModel.findOne({ $and: [{ email }, { password }] })
-        console.log(admin);
         if (admin) {
             const token = generateToken(admin._id, 'superAdmin')
             res.status(200).json({ message: "Admin login success", name: admin.name, role: 'superAdmin', token })
@@ -213,7 +211,6 @@ const getRents = async (req, res) => {
         const rents = await rentModel.find({}).populate('user').populate('bike')
         res.status(200).json({ rents })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -248,7 +245,6 @@ const userStatus = async (req, res) => {
         }
         
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -260,7 +256,6 @@ const users = async (req, res) => {
         const users = await userModel.find({})
         res.status(200).json({ users })
     } catch (error) {
-        console.log(error.message);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -294,7 +289,6 @@ const getDashbord = async (req, res) => {
 
         res.status(200).json({ rents, userCount: users.length, clubCount: clubs.length, bikeCount: bikes.length, rentGrap: Array.from(bikeRentMap.values()) })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -306,7 +300,6 @@ const getLocations = async (req, res) => {
         const locations = await locationModel.find({})
         res.status(200).json({ locations })
     } catch (error) {
-        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -320,7 +313,6 @@ const sendRentMail = async (req, res) => {
         rentMailSend(name, email, bike, rent, adminName)
         res.status(200).json({ message: 'mail send successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -341,7 +333,6 @@ const removeLocation = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
@@ -355,7 +346,6 @@ const addLocation = async (req, res) => {
         await locationModel.create({ location: newLocation })
         res.status(200).json({ message: 'Location added successfully' })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }
