@@ -297,6 +297,7 @@ const loadProfile = async (req, res) => {
 const editProfile = async (req, res) => {
     try {
         let { name, profileImage, mobile } = req.body
+        console.log('edit profile');
         name = name.trim()
         let user = null
         if(mobile){

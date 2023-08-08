@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require('../controllers/user')
 const auth = require('../middlewares/auth')
 
+console.log('edit');
 router.post('/register',userController.register)
 router.get('/verify/:userId',userController.verifyMail)
 router.post('/login',userController.login)
