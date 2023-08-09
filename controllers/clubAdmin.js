@@ -79,7 +79,8 @@ const removeMember = async (req, res) => {
     try {
         const id = req.body.id
         const clubId = req.payload.clubId
-        const ride = await rideModel.find({ club: clubId, 'riders.rider': id })
+        const currentDate = new Date()
+        const ride = await rideModel.find({ $and: [{ club: clubId }, { 'riders.rider': id }, { endDate: { $gte: currentDate } }] })
         if (ride.length > 0) {
             res.status(409).json({ errMsg: 'Member included in a ride!' })
         } else {

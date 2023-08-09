@@ -325,7 +325,7 @@ const createClub = async (req, res) => {
     try {
         const { clubName, city, logo, year, isPrivate } = req.body
         const id = req.payload.id
-        await clubModel.create({ clubName, city, logo, startedYear: year, admins: [{ admin: id }], members: [{ member: id }], isProtected: isPrivate })
+        await clubModel.create({ clubName, city, logo, startedYear: year, admins: [{ admin: id }], isProtected: isPrivate })
         res.status(200).json({ message: 'Club Created Successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })

@@ -88,7 +88,7 @@ const createRide = async (req, res) => {
             } else {
                 await clubModel.updateOne({ _id: clubId, 'members.member': userId }, { $inc: { 'members.$.rideCount': 1 } })
             }
-            res.status(200).json({ message: "Ride Created Successfully" })
+            res.status(200).json({ message: "Ride Created Successfully,wait for admin accept" })
         }
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
