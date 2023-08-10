@@ -28,7 +28,7 @@ module.exports = {
             if (verified.role === 'user') {
                 const user = await userModel.findOne({_id:verified.id})
                 if(user.isBlocked){
-                    return res.status(403).json({ errMsg: "Acess Denied" })
+                    return res.status(403).json({ errMsg: "User is blocked by admin" })
                 }else{
                     req.payload = verified
                     next()
