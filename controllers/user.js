@@ -337,25 +337,26 @@ const createClub = async (req, res) => {
 
 const getClubs = async (req, res) => {
     try {
-        const userId = req.payload.id
-        const clubs = await clubModel.find({
-            isProtected: false,
-            isBlocked:false,
-            $and: [
-                { 'members.member': { $ne: userId } },
-                { 'admins.admin': { $ne: userId } }
-            ]
-        }).populate('admins.admin');
+        res.status(500).json({ errMsg: "Server Error" })
+        // const userId = req.payload.id
+        // const clubs = await clubModel.find({
+        //     isProtected: false,
+        //     isBlocked:false,
+        //     $and: [
+        //         { 'members.member': { $ne: userId } },
+        //         { 'admins.admin': { $ne: userId } }
+        //     ]
+        // }).populate('admins.admin');
 
-        const protClubs = await clubModel.find({
-            isProtected: true,
-            isBlocked:false,
-            $and: [
-                { 'members.member': { $ne: userId } },
-                { 'admins.admin': { $ne: userId } }
-            ]
-        }).populate('admins.admin');
-        res.status(200).json({ clubs, protClubs })
+        // const protClubs = await clubModel.find({
+        //     isProtected: true,
+        //     isBlocked:false,
+        //     $and: [
+        //         { 'members.member': { $ne: userId } },
+        //         { 'admins.admin': { $ne: userId } }
+        //     ]
+        // }).populate('admins.admin');
+        // res.status(200).json({ clubs, protClubs })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
