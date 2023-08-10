@@ -15,7 +15,14 @@ const jwt = require('jsonwebtoken')
 const app = express()
 
 app.use(morgan('dev'))
-app.use(cors())
+const corsOptions = {
+    origin: [process.env.BACKENDURL,process.env.FRONTENDURL],
+    methods: ['GET', 'POST', 'PUT', 'DELETE' , 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],   
+  };
+  
+  // Enable CORS with the custom options
+  app.use(cors(corsOptions));
 app.use(express.json({limit:'100mb',extended:true}))
 app.use(cookieParser())
 
@@ -43,22 +50,16 @@ const io = require('socket.io')(server,{
 
 
 io.on('connection',(socket)=>{
-    console.log('connectionon');
     socket.on('setup',(userId)=>{
-        console.log('connected');
         socket.join(userId)
         socket.emit('connected')
     })
 
     socket.on('joinChat',(room)=>{
-        console.log(room);
-        console.log('joined chat');
         socket.join(room);
     })
 
     socket.on('new message',(newMessage,room) => {
-        console.log('message sendig',room);
-        console.log(newMessage,'====');
         io.emit('messageResponse', newMessage,room);
      });
 
