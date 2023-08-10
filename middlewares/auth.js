@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const userModel = require('../models/userModel')
 require('dotenv').config()
 
 
@@ -25,8 +26,13 @@ module.exports = {
             const verified = jwt.verify(token, process.env.JWTSECRET)
 
             if (verified.role === 'user') {
-                req.payload = verified
-                next()
+                const user = await userModel.findOne({_id:verified.id})
+                if(user.isBlocked){
+                    return res.status(403).json({ errMsg: "Acess Denied" })
+                }else{
+                    req.payload = verified
+                    next()
+                }
             } else {
                 return res.status(403).json({ errMsg: "Acess Denied" })
             }
