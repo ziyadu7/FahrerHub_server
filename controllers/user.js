@@ -75,13 +75,16 @@ const sendForgottPasswordMail = async (email,name,userId) => {
         transporter.sendMail(mailOption, (error, info) => {
             if (error) {
                 console.log('Email could not be sent',error.message)
+                return false
             } else {
                 console.log('Email has been sent:', info.response)
+                return true
             }
         })
     } catch (error) {
         console.log(error)
         console.log('Error occurred while sending email');
+        return false
     }
 };
 
@@ -179,7 +182,12 @@ const forgottPassword = async (req,res)=>{
         const {email} = req.body
         const user = await userModel.findOne({email})
         if(user){
-            sendForgottPasswordMail(email,user.name,user._id)
+            const response = sendForgottPasswordMail(email,user.name,user._id)
+            if(response){
+                res.status(200).json({errMsg:'Please check your mail'})
+            }else{
+                res.status(550).json({errMsg:"Error occured while sending mail"})
+            }
         }else{
             res.status(400).json({errMsg:'User not found'})
         }
