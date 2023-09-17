@@ -476,7 +476,7 @@ const cancelBooking = async (req,res)=>{
         const { rentId, bikeId } = req.body
         await rentModel.deleteOne({ _id: rentId })
         await bikeModel.updateOne({ _id: bikeId }, { $set: { isBooked: false } })
-        res.status(200).json({ message: 'Status changed successfully' })
+        res.status(200).json({ message: 'Booking cancelled successfully' })
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })
     }
