@@ -99,11 +99,24 @@ const login = async (req, res) => {
 ////////////////ADD BIKES/////////////////
 
 const addBikes = async (req, res) => {
+    const {files,body:{ make, model, rentAmount, cc, category, description, locationId }} = req
     try {
-        const { make, model, rentAmount, images, cc, category, description, locationId } = req.body
+        let images = [];
+
+        if(files){
+                for await (const file of files) {
+                    const mimeType = mime.lookup(file.originalname);
+                    if (mimeType && mimeType.includes("image/")) {
+                        const upload = await cloudinary.uploader.upload(file.path);
+                        images.push(upload.secure_url);
+                        if (fs.existsSync(file.path))fs.unlinkSync(file.path);
+                    };
+                };
+        }
         await bikeModel.create({ make, locationId, model, rentAmount, images, cc, category, description })
         res.status(200).json({ message: "Bike added succesfully" })
     } catch (error) {
+        if(files) for await (const file of files)if (fs.existsSync(file.path))fs.unlinkSync(file.path);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

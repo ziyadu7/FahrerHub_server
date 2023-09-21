@@ -12,7 +12,7 @@ router.get('/getEditBike/:id',auth.verifySuperAdminToken,superAdminController.ge
 router.patch('/editBike/:id',auth.verifySuperAdminToken,upload.array('images',4),superAdminController.editBike)
 router.patch('/blockClub',auth.verifySuperAdminToken,superAdminController.blockClub)
 router.patch('/userStatus',auth.verifySuperAdminToken,superAdminController.userStatus)
-router.post('/addBike',auth.verifySuperAdminToken,superAdminController.addBikes)
+router.post('/addBike',auth.verifySuperAdminToken,upload.array('images',4),superAdminController.addBikes)
 router.delete('/removeBike/:id',auth.verifySuperAdminToken,superAdminController.removeBike)
 router.get('/clubs',auth.verifySuperAdminToken,superAdminController.getClubs)
 router.get('/rents',auth.verifySuperAdminToken,superAdminController.getRents)
