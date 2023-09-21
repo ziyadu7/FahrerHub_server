@@ -7,6 +7,9 @@ const nodemailer = require('nodemailer')
 const locationModel = require('../models/locationModel')
 const rideModel = require('../models/rideModel')
 const userModel = require('../models/userModel')
+const mime = require("mime-types")
+const cloudinary = require('../config/cloudinary')
+const fs = require("fs");
 
 /////////////////RENT MAIL SENDING/////
 
@@ -148,13 +151,30 @@ const getEditBike = async (req, res) => {
 /////////////////EDIT BIKE////////////////
 
 const editBike = async (req, res) => {
+
+    const {files,body:{ make, model, rentAmount, cc, category, description, locationId }} = req
+
     try {
-        const { make, model, rentAmount, images, cc, category, description, locationId } = req.body
         const id = req.params.id
+        let images = [];
+
+        if(files){
+                for await (const file of files) {
+                    const mimeType = mime.lookup(file.originalname);
+                    if (mimeType && mimeType.includes("image/")) {
+                        const upload = await cloudinary.uploader.upload(file.path);
+                        images.push(upload.secure_url);
+                        if (fs.existsSync(file.path))fs.unlinkSync(file.path);
+                    };
+                };
+        }
+
         await bikeModel.updateOne({ _id: id }, { $set: { make, model, rentAmount, images, cc, category, description, images, locationId } })
         res.status(200).json({ message: 'Bike details edited successfully' })
 
     } catch (error) {
+        if(files) for await (const file of files)if (fs.existsSync(file.path))fs.unlinkSync(file.path);
+        
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

@@ -2,11 +2,14 @@ const express = require('express')
 const router = express.Router()
 const superAdminController = require('../controllers/superAdmin')
 const auth = require('../middlewares/auth')
+const multer = require('../config/multer')
+const upload = multer.createMulter();
+
 
 router.post('/login',superAdminController.login)
 router.get('/showBikes',auth.verifySuperAdminToken,superAdminController.showBikes)
 router.get('/getEditBike/:id',auth.verifySuperAdminToken,superAdminController.getEditBike)
-router.patch('/editBike/:id',auth.verifySuperAdminToken,superAdminController.editBike)
+router.patch('/editBike/:id',auth.verifySuperAdminToken,upload.array('images',4),superAdminController.editBike)
 router.patch('/blockClub',auth.verifySuperAdminToken,superAdminController.blockClub)
 router.patch('/userStatus',auth.verifySuperAdminToken,superAdminController.userStatus)
 router.post('/addBike',auth.verifySuperAdminToken,superAdminController.addBikes)
