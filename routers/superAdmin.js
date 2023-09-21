@@ -4,7 +4,7 @@ const superAdminController = require('../controllers/superAdmin')
 const auth = require('../middlewares/auth')
 const multer = require('../config/multer')
 const upload = multer.createMulter();
-
+  
 
 router.post('/login',superAdminController.login)
 router.get('/showBikes',auth.verifySuperAdminToken,superAdminController.showBikes)
