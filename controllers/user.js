@@ -253,9 +253,18 @@ const googleLogin = async (req, res) => {
 
 const getBikes = async (req, res) => {
     try {
-        const bikes = await bikeModel.find({ isBooked: false }).populate('locationId')
-        const locations = await locationModel.find({})
-        res.status(200).json({ bikes, locations })
+        const skip = req.query.skip
+        let bikes = []
+        let noMore = false
+        let locations = []
+        if(skip==0){
+            locations = await locationModel.find({})
+        }
+        if(skip%10==0||skip==0){
+            bikes = await bikeModel.find({ isBooked: false }).skip(skip).limit(10).populate('locationId')
+            if(bikes.length < 10) noMore = true
+        }else noMore = true 
+        res.status(200).json({ bikes, locations, noMore })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
