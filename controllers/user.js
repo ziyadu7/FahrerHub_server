@@ -253,21 +253,69 @@ const googleLogin = async (req, res) => {
 
 const getBikes = async (req, res) => {
     try {
-        const skip = req.query.skip
-        let bikes = []
-        let noMore = false
-        let locations = []
-        if(skip==0){
-            locations = await locationModel.find({})
+        const limit = parseInt(req.query.limit) || 0;
+        const location = req.query.location;
+        const search = req.query.search||'';
+
+        let bikes = [];
+        let noMore = false;
+        let locations = [];
+      
+        if (limit === 10) {
+          locations = await locationModel.find({});
         }
-        if(skip%10==0||skip==0){
-            bikes = await bikeModel.find({ isBooked: false }).skip(skip).limit(10).populate('locationId')
-            if(bikes.length < 10) noMore = true
-        }else noMore = true 
-        res.status(200).json({ bikes, locations, noMore })
-    } catch (error) {
-        res.status(500).json({ errMsg: "Server Error" })
-    }
+      
+        if (location!=0) {
+          bikes = await bikeModel
+            .find({
+              $and: [
+                { isBooked: false },
+                { locationId: new ObjectId(location) },
+                {
+                  $or: [
+                    { category: { $regex: search, $options: 'i' } },
+                    { make: { $regex: search, $options: 'i' } },
+                    { model: { $regex: search, $options: 'i' } },
+                  ],
+                },
+              ],
+            })
+            .limit(limit)
+            .populate('locationId');
+      
+          if (bikes.length%10!=0) noMore = true;
+      
+          res.status(200).json({ bikes, locations, noMore });
+        } else {
+          if (limit % 10 === 0) {
+            bikes = await bikeModel
+              .find({
+                $and: [
+                  { isBooked: false },
+                  {
+                    $or: [
+                      { category: { $regex: search, $options: 'i' } },
+                      { make: { $regex: search, $options: 'i' } },
+                      { model: { $regex: search, $options: 'i' } },
+                    ],
+                  },
+                ],
+              })
+              .limit(limit)
+              .populate('locationId');
+      
+            if (bikes.length%10!=0) noMore = true;
+          } else {
+            noMore = true;
+          }
+      
+          res.status(200).json({ bikes, locations, noMore });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ errMsg: "Server Error" });
+      }
+      
 }
 
 
