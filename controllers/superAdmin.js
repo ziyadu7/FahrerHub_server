@@ -99,24 +99,24 @@ const login = async (req, res) => {
 ////////////////ADD BIKES/////////////////
 
 const addBikes = async (req, res) => {
-    const {files,body:{ make, model, rentAmount, cc, category, description, locationId }} = req
+    const { files, body: { make, model, rentAmount, cc, category, description, locationId } } = req
     try {
         let images = [];
 
-        if(files){
-                for await (const file of files) {
-                    const mimeType = mime.lookup(file.originalname);
-                    if (mimeType && mimeType.includes("image/")) {
-                        const upload = await cloudinary.uploader.upload(file.path);
-                        images.push(upload.secure_url);
-                        if (fs.existsSync(file.path))fs.unlinkSync(file.path);
-                    };
+        if (files) {
+            for await (const file of files) {
+                const mimeType = mime.lookup(file.originalname);
+                if (mimeType && mimeType.includes("image/")) {
+                    const upload = await cloudinary.uploader.upload(file.path);
+                    images.push(upload.secure_url);
+                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
                 };
+            };
         }
         await bikeModel.create({ make, locationId, model, rentAmount, images, cc, category, description })
         res.status(200).json({ message: "Bike added succesfully" })
     } catch (error) {
-        if(files) for await (const file of files)if (fs.existsSync(file.path))fs.unlinkSync(file.path);
+        if (files) for await (const file of files) if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -165,29 +165,29 @@ const getEditBike = async (req, res) => {
 
 const editBike = async (req, res) => {
 
-    const {files,body:{ make, model, rentAmount, cc, category, description, locationId }} = req
+    const { files, body: { make, model, rentAmount, cc, category, description, locationId } } = req
 
     try {
         const id = req.params.id
         let images = [];
 
-        if(files){
-                for await (const file of files) {
-                    const mimeType = mime.lookup(file.originalname);
-                    if (mimeType && mimeType.includes("image/")) {
-                        const upload = await cloudinary.uploader.upload(file.path);
-                        images.push(upload.secure_url);
-                        if (fs.existsSync(file.path))fs.unlinkSync(file.path);
-                    };
+        if (files) {
+            for await (const file of files) {
+                const mimeType = mime.lookup(file.originalname);
+                if (mimeType && mimeType.includes("image/")) {
+                    const upload = await cloudinary.uploader.upload(file.path);
+                    images.push(upload.secure_url);
+                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
                 };
+            };
         }
 
         await bikeModel.updateOne({ _id: id }, { $set: { make, model, rentAmount, images, cc, category, description, images, locationId } })
         res.status(200).json({ message: 'Bike details edited successfully' })
 
     } catch (error) {
-        if(files) for await (const file of files)if (fs.existsSync(file.path))fs.unlinkSync(file.path);
-        
+        if (files) for await (const file of files) if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -276,7 +276,7 @@ const userStatus = async (req, res) => {
                 res.status(200).json({ message: 'Status changed successfully' })
             }
         }
-        
+
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
@@ -286,8 +286,15 @@ const userStatus = async (req, res) => {
 
 const users = async (req, res) => {
     try {
-        const users = await userModel.find({})
-        res.status(200).json({ users })
+        const { skip, search } = req.query
+        let noMore = false
+        const users = await userModel.find({ name: { $regex: search, $options: 'i' } }).skip(skip).limit(10)
+
+        if (users.length < 10) {
+            noMore = true
+        }
+
+        res.status(200).json({ users, noMore })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
