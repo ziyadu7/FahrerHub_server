@@ -125,8 +125,23 @@ const addBikes = async (req, res) => {
 
 const showBikes = async (req, res) => {
     try {
-        const bikes = await bikeModel.find({})
-        res.status(200).json({ bikes })
+        const { skip, search } = req.query
+
+        let noMore = false
+
+        const bikes = await bikeModel.find({
+            $or: [
+                { category: { $regex: search, $options: 'i' } },
+                { make: { $regex: search, $options: 'i' } },
+                { model: { $regex: search, $options: 'i' } },
+            ]
+        }).skip(skip).limit(10)
+
+        if (bikes.length < 10) {
+            noMore = true
+        }
+
+        res.status(200).json({ bikes, noMore })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
@@ -286,15 +301,24 @@ const userStatus = async (req, res) => {
 
 const users = async (req, res) => {
     try {
-        const { skip, search } = req.query
+        const { skip, search,calls } = req.query
         let noMore = false
         const users = await userModel.find({ name: { $regex: search, $options: 'i' } }).skip(skip).limit(10)
 
         if (users.length < 10) {
             noMore = true
         }
+        console.log(skip)
+        let length
 
-        res.status(200).json({ users, noMore })
+        if(calls==0){
+             length = await userModel.find({}).count()
+             length = Math.ceil(length/10)
+        }else if(search.trim()!==''){
+            length = Math.ceil(users/10)
+        }
+
+        res.status(200).json({ users, noMore,length })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
