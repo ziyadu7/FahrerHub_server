@@ -327,11 +327,12 @@ const getSingleBike = async (req, res) => {
         const userId = req.payload.id
         const currentDate = new Date()
         currentDate.setDate(currentDate.getDate() + 1)
+        const wallet = await userModel.findOne({ _id: userId }).select('wallet')
         const isReview = await rentModel.findOne({ $and: [{ bike: bikeId }, { user: userId }, { toDate: { $lte: new Date() } }] })
         const isBooked = await rentModel.findOne({ $and: [{ bike: bikeId }, { user: userId }, { toDate: { $gte: new Date() } }] })
         const bike = await bikeModel.findOne({ _id: bikeId }).populate('reviews.user').populate('locationId')
         const currentUser = await rentModel.findOne({ $and: [{ bike: bikeId }, { fromDate: { $lte: currentDate } }, { toDate: { $gte: new Date() } }] }).populate('user')
-        res.status(200).json({ isReview, bike, currentUser, isBooked })
+        res.status(200).json({ isReview, bike, currentUser, isBooked ,wallet})
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
@@ -531,10 +532,20 @@ const returnBike = async (req, res) => {
 const cancelBooking = async (req,res)=>{
     try {
         const { rentId, bikeId } = req.body
+        const {id} = req.payload
+        const rent = await rentModel.findOne({ _id: rentId })
+        await userModel.updateOne(
+            { _id: id },
+            {
+              $inc: { wallet: rent.amount }
+            }
+          )
+                           
         await rentModel.deleteOne({ _id: rentId })
         await bikeModel.updateOne({ _id: bikeId }, { $set: { isBooked: false } })
         res.status(200).json({ message: 'Booking cancelled successfully' })
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }

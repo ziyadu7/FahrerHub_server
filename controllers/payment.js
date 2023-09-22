@@ -1,6 +1,7 @@
 
 const Stripe = require('stripe')
 const rentModel = require('../models/rentModel')
+const userModel = require('../models/userModel')
 require('dotenv').config()
 
 const stripe = Stripe(process.env.STRIPE_KEY)
@@ -11,11 +12,12 @@ const createCheckoute = async (req, res) => {
     const bike = req.body.bike
     const fromDate = req.body.fromDate
     const toDate = req.body.toDate
+    const userId = req.payload.id
 
     const diff = new Date(toDate) - new Date(fromDate)
-
+    const wallet = await userModel.findOne({ _id: userId }).select('wallet')
     const diifference = diff / (1000 * 3600 * 24)
-    const amount = bike.rentAmount * diifference
+    const amount = (bike.rentAmount * diifference)-wallet.wallet
 
     const existingBooking = await rentModel.findOne({
       bike: bike._id,
@@ -37,7 +39,7 @@ const createCheckoute = async (req, res) => {
     } else {
       const user = await stripe.customers.create({
         metadata: {
-          userId: req.payload.id,
+          userId: userId,
           bikeId: bike._id,
           fromDate: fromDate,
           toDate: toDate,
@@ -63,7 +65,7 @@ const createCheckoute = async (req, res) => {
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.BACKENDURL}/user/paymentSuccess?userId=${req.payload.id}&bikeId=${bike._id}&amount=${amount}&fromDate=${fromDate}&toDate=${toDate}`,
+        success_url: `${process.env.BACKENDURL}/user/paymentSuccess?userId=${userId}&bikeId=${bike._id}&amount=${amount}&fromDate=${fromDate}&toDate=${toDate}`,
         cancel_url: `${process.env.BACKENDURL}/paymentFail`,
       })
 

@@ -14,6 +14,10 @@ const userSchema = mongoose.Schema({
     password:{
         type:String
     },
+    wallet:{
+        type:Number,
+        default:0
+    },
     profileImage:{
         type:String,
     },
