@@ -15,6 +15,7 @@ const jwt = require('jsonwebtoken')
 const app = express()
 
 app.use(morgan('dev'))
+
 const corsOptions = {
     origin: [process.env.BACKENDURL,process.env.FRONTENDURL],
     methods: ['GET', 'POST', 'PUT', 'DELETE' , 'PATCH'],
@@ -37,10 +38,28 @@ const server = app.listen(process.env.PORT,()=>{
     console.log('server started'); 
 })
 
+// CRON //
+
+const { spawn } = require('child_process');
+
+const expiredRentMailSending = spawn('node', ['./cronFile/sendMailCron.js']);
+
+expiredRentMailSending.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+});
+
+expiredRentMailSending.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+});
+
+expiredRentMailSending.on('close', (code) => {
+    console.log(`Child process exited with code ${code}`);
+});
+
 
 const io = require('socket.io')(server,{
     cors: {
-        origin:'*',
+        origin:[process.env.BACKENDURL,process.env.FRONTENDURL],
         // methods: ['GET', 'POST'],
         // allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true

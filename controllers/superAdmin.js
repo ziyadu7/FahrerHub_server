@@ -429,5 +429,6 @@ module.exports = {
     blockClub,
     getDashbord,
     userStatus,
+    rentMailSend,
     users
 }
