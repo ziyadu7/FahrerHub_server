@@ -288,21 +288,22 @@ const getBikes = async (req, res) => {
           res.status(200).json({ bikes, locations, noMore });
         } else {
           if (limit % 10 === 0||search.trim().length>0) {
-            bikes = await bikeModel
+              bikes = await bikeModel
               .find({
-                $and: [
-                  { isBooked: false },
-                  {
-                    $or: [
-                      { category: { $regex: search, $options: 'i' } },
-                      { make: { $regex: search, $options: 'i' } },
-                      { model: { $regex: search, $options: 'i' } },
+                  $and: [
+                      { isBooked: false },
+                      {
+                          $or: [
+                              { category: { $regex: search, $options: 'i' } },
+                              { make: { $regex: search, $options: 'i' } },
+                              { model: { $regex: search, $options: 'i' } },
+                            ],
+                        },
                     ],
-                  },
-                ],
-              })
-              .limit(limit)
-              .populate('locationId');
+                })
+                .limit(limit)
+                .populate('locationId');
+                console.log(search,bikes.length,'====');
       
             if (bikes.length%10!=0) noMore = true;
           } else {
