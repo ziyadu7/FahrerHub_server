@@ -287,7 +287,7 @@ const getBikes = async (req, res) => {
       
           res.status(200).json({ bikes, locations, noMore });
         } else {
-          if (limit % 10 === 0) {
+          if (limit % 10 === 0||search.trim().length>0) {
             bikes = await bikeModel
               .find({
                 $and: [
