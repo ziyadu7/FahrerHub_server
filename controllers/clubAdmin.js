@@ -3,6 +3,9 @@ const rideModel = require('../models/rideModel');
 const userModel = require('../models/userModel')
 const nodemailer = require('nodemailer')
 require('dotenv').config()
+const mime = require("mime-types")
+const cloudinary = require('../config/cloudinary')
+const fs = require("fs");
 
 
 /////////////////SEND BLOCK MAIL//////////////
@@ -126,14 +129,23 @@ const getImages = async (req, res) => {
 
 const addImage = async (req, res) => {
     try {
-        const { image } = req.body
+        let { file } = req
         const { clubId } = req.payload
-
+        let image
+        console.log(file,'=====')
+        const mimeType = mime.lookup(file.originalname)
+        if(mimeType && mimeType.includes("image/")){
+            const upload = await cloudinary.uploader.upload(file.path)
+            image = upload.secure_url
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
+        }
+        console.log(image,'++++++');
         await clubModel.updateOne({ _id: clubId }, { $push: { rideImages: { image } } })
 
         res.status(200).json({ message: "Image added successfully" })
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
