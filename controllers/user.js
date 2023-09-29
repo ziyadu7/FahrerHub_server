@@ -10,6 +10,10 @@ const rentModel = require('../models/rentModel')
 const rideModel = require('../models/rideModel')
 const questionModel = require('../models/questionModel')
 const locationModel = require('../models/locationModel')
+const mime = require("mime-types")
+const sharp = require('sharp')
+const cloudinary = require('../config/cloudinary')
+const fs = require("fs");
 require('dotenv').config()
 
 
@@ -390,11 +394,43 @@ const editProfile = async (req, res) => {
 
 const createClub = async (req, res) => {
     try {
-        const { clubName, city, logo, year, isPrivate } = req.body
+        const { clubName, city, year, isPrivate } = req.body
         const id = req.payload.id
-        await clubModel.create({ clubName, city, logo, startedYear: year, admins: [{ admin: id }], isProtected: isPrivate })
-        res.status(200).json({ message: 'Club Created Successfully' })
+        let { file } = req
+        let image
+
+        //////////////////////////////////////////
+
+            let path = file.path
+            const processImage = new Promise((resolve, reject) => {
+                sharp(path).rotate().resize(476, 267).toFile( 'processedImage/'+ file.filename, (err) => {
+                    sharp.cache(false);
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        console.log(`Processed file: ${path}`);
+                        resolve();
+                    }
+                })
+            });
+            processImage.then(async () => {
+                const mimeType = mime.lookup(file.originalname)
+                if(mimeType && mimeType.includes("image/")){
+                    const upload = await cloudinary.uploader.upload('processedImage/'+ file.filename)
+                    image = upload.secure_url
+                    if (fs.existsSync(path)) fs.unlinkSync(path)
+                    if (fs.existsSync('processedImage/'+ file.filename)) fs.unlinkSync('processedImage/'+ file.filename)
+                }
+                await clubModel.create({ clubName, city, logo:image, startedYear: year, admins: [{ admin: id }], isProtected: isPrivate })
+                res.status(200).json({ message: 'Club Created Successfully' })
+            }).catch((err) => {
+                console.log(err);
+            })
+
+        //////////////////////////////////////////
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

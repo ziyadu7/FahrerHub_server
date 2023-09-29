@@ -132,14 +132,12 @@ const addImage = async (req, res) => {
         let { file } = req
         const { clubId } = req.payload
         let image
-        console.log(file,'=====')
         const mimeType = mime.lookup(file.originalname)
         if(mimeType && mimeType.includes("image/")){
             const upload = await cloudinary.uploader.upload(file.path)
             image = upload.secure_url
             if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
         }
-        console.log(image,'++++++');
         await clubModel.updateOne({ _id: clubId }, { $push: { rideImages: { image } } })
 
         res.status(200).json({ message: "Image added successfully" })
