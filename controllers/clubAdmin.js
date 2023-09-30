@@ -102,12 +102,13 @@ const removeMember = async (req, res) => {
 
 const editClub = async (req, res) => {
     try {
-        const { clubName, city, startedYear, logo } = req.body
+        const { clubName, city, startedYear } = req.body
         const { clubId } = req.payload
         let { file } = req
         let image
 
-        let path = file.path
+        if(file){
+            let path = file.path
         const processImage = new Promise((resolve, reject) => {
             sharp(path).rotate().resize(476, 267).toFile('processedImage/' + file.filename, (err) => {
                 sharp.cache(false);
@@ -133,7 +134,12 @@ const editClub = async (req, res) => {
         }).catch((err) => {
             console.log(err);
         })
+        }else{
+            await clubModel.updateOne({ _id: clubId }, { $set: { clubName, city, startedYear} })
+            res.status(200).json({ message: "Club updated successfully" })
+        }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }

@@ -57,7 +57,7 @@ const sendVerifyMail = async (name, email, userId) => {
 
 ////////////SEND FORGOTT PASSWORD MAIL//////////////
 
-const sendForgottPasswordMail = async (email,name,userId) => {
+const sendForgottPasswordMail = async (email, name, userId) => {
     try {
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -78,7 +78,7 @@ const sendForgottPasswordMail = async (email,name,userId) => {
 
         transporter.sendMail(mailOption, (error, info) => {
             if (error) {
-                console.log('Email could not be sent',error.message)
+                console.log('Email could not be sent', error.message)
                 return false
             } else {
                 console.log('Email has been sent:', info.response)
@@ -112,7 +112,7 @@ const register = async (req, res) => {
         let { name, email, password, phone, city } = req.body
         email = email.trim()
         password = password.trim()
-        const user = await userModel.findOne({ $or:[{email},{phone}] })
+        const user = await userModel.findOne({ $or: [{ email }, { phone }] })
         if (user && !user.password) {
             return res.status(409).json({ errMsg: "User already exist, try Google Login" })
         } else if (user) {
@@ -158,42 +158,42 @@ const login = async (req, res) => {
 
 ///////////OTP LOGIN/////////////
 
-const otpLogin = async (req,res)=>{
+const otpLogin = async (req, res) => {
     try {
-        const {phone} = req.body
-        const user = await userModel.findOne({phone})
-        if(user){
+        const { phone } = req.body
+        const user = await userModel.findOne({ phone })
+        if (user) {
             const token = generateToken(user._id, 'user')
-            const data={
+            const data = {
                 token,
-                name:user.name,
-                userId:user._id,
-                role:'user'
+                name: user.name,
+                userId: user._id,
+                role: 'user'
             }
-            res.status(200).json({data})
-        }else{
-            res.status(404).json({errMsg:"User not found"})
+            res.status(200).json({ data })
+        } else {
+            res.status(404).json({ errMsg: "User not found" })
         }
     } catch (error) {
-        res.status(500).json({ errMsg: "Server Error" }) 
+        res.status(500).json({ errMsg: "Server Error" })
     }
 }
 
 ////////////////////FORGOTT PASSWORD///////////////
 
-const forgottPassword = async (req,res)=>{
+const forgottPassword = async (req, res) => {
     try {
-        const {email} = req.body
-        const user = await userModel.findOne({email})
-        if(user){
-            const response = sendForgottPasswordMail(email,user.name,user._id)
-            if(response){
-                res.status(200).json({errMsg:'Please check your mail'})
-            }else{
-                res.status(550).json({errMsg:"Error occured while sending mail"})
+        const { email } = req.body
+        const user = await userModel.findOne({ email })
+        if (user) {
+            const response = sendForgottPasswordMail(email, user.name, user._id)
+            if (response) {
+                res.status(200).json({ errMsg: 'Please check your mail' })
+            } else {
+                res.status(550).json({ errMsg: "Error occured while sending mail" })
             }
-        }else{
-            res.status(400).json({errMsg:'User not found'})
+        } else {
+            res.status(400).json({ errMsg: 'User not found' })
         }
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
@@ -203,14 +203,14 @@ const forgottPassword = async (req,res)=>{
 
 //////////////RESET PASSWORD///////////////////
 
-const resetPassword = async (req,res)=>{
+const resetPassword = async (req, res) => {
     try {
-        const {userId,password} = req.body
-        await userModel.updateOne({_id:userId},{$set:{password: sha256(password + process.env.SALT)}})
-        res.status(200).json({message:"Password changed"})
+        const { userId, password } = req.body
+        await userModel.updateOne({ _id: userId }, { $set: { password: sha256(password + process.env.SALT) } })
+        res.status(200).json({ message: "Password changed" })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
-        
+
     }
 }
 
@@ -259,68 +259,68 @@ const getBikes = async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 0;
         const location = req.query.location;
-        const search = req.query.search||'';
+        const search = req.query.search || '';
 
         let bikes = [];
         let noMore = false;
         let locations = [];
-      
+
         if (limit === 10) {
-          locations = await locationModel.find({});
+            locations = await locationModel.find({});
         }
-      
-        if (location!=0) {
-          bikes = await bikeModel
-            .find({
-              $and: [
-                { isBooked: false },
-                { locationId: new ObjectId(location) },
-                {
-                  $or: [
-                    { category: { $regex: search, $options: 'i' } },
-                    { make: { $regex: search, $options: 'i' } },
-                    { model: { $regex: search, $options: 'i' } },
-                  ],
-                },
-              ],
-            })
-            .limit(limit)
-            .populate('locationId');
-      
-          if (bikes.length%10!=0) noMore = true;
-      
-          res.status(200).json({ bikes, locations, noMore });
-        } else {
-          if (limit % 10 === 0||search.trim().length>0) {
-              bikes = await bikeModel
-              .find({
-                  $and: [
-                      { isBooked: false },
-                      {
-                          $or: [
-                              { category: { $regex: search, $options: 'i' } },
-                              { make: { $regex: search, $options: 'i' } },
-                              { model: { $regex: search, $options: 'i' } },
+
+        if (location != 0) {
+            bikes = await bikeModel
+                .find({
+                    $and: [
+                        { isBooked: false },
+                        { locationId: new ObjectId(location) },
+                        {
+                            $or: [
+                                { category: { $regex: search, $options: 'i' } },
+                                { make: { $regex: search, $options: 'i' } },
+                                { model: { $regex: search, $options: 'i' } },
                             ],
                         },
                     ],
                 })
                 .limit(limit)
                 .populate('locationId');
-                console.log(search,bikes.length,'====');
-      
-            if (bikes.length%10!=0) noMore = true;
-          } else {
-            noMore = true;
-          }
-      
-          res.status(200).json({ bikes, locations, noMore });
+
+            if (bikes.length % 10 != 0) noMore = true;
+
+            res.status(200).json({ bikes, locations, noMore });
+        } else {
+            if (limit % 10 === 0 || search.trim().length > 0) {
+                bikes = await bikeModel
+                    .find({
+                        $and: [
+                            { isBooked: false },
+                            {
+                                $or: [
+                                    { category: { $regex: search, $options: 'i' } },
+                                    { make: { $regex: search, $options: 'i' } },
+                                    { model: { $regex: search, $options: 'i' } },
+                                ],
+                            },
+                        ],
+                    })
+                    .limit(limit)
+                    .populate('locationId');
+                console.log(search, bikes.length, '====');
+
+                if (bikes.length % 10 != 0) noMore = true;
+            } else {
+                noMore = true;
+            }
+
+            res.status(200).json({ bikes, locations, noMore });
         }
-      } catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ errMsg: "Server Error" });
-      }
-      
+    }
+
 }
 
 
@@ -337,7 +337,7 @@ const getSingleBike = async (req, res) => {
         const isBooked = await rentModel.findOne({ $and: [{ bike: bikeId }, { user: userId }, { toDate: { $gte: new Date() } }] })
         const bike = await bikeModel.findOne({ _id: bikeId }).populate('reviews.user').populate('locationId')
         const currentUser = await rentModel.findOne({ $and: [{ bike: bikeId }, { fromDate: { $lte: currentDate } }, { toDate: { $gte: new Date() } }] }).populate('user')
-        res.status(200).json({ isReview, bike, currentUser, isBooked ,wallet})
+        res.status(200).json({ isReview, bike, currentUser, isBooked, wallet })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
@@ -367,24 +367,62 @@ const loadProfile = async (req, res) => {
 
 const editProfile = async (req, res) => {
     try {
-        let { name, profileImage, mobile } = req.body
-        console.log('edit profile');
+
+        let { name, mobile } = req.body
+        let { file } = req
+        let image
         name = name.trim()
         let user = null
-        if(mobile){
-             user = await userModel.findOne({phone:mobile})
+        if (mobile!='false'&&mobile) {
+            user = await userModel.findOne({ phone: mobile })
         }
-        if(user){
-            res.status(404).json({errMsg:"Mobile number already exist"})
-        }else{
-            if(mobile){
-                await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage, phone:mobile } })
-            }else{
-            await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage} })
+        if (user) {
+            res.status(404).json({ errMsg: "Mobile number already exist" })
+        } else {
+            if (file) {
+                let path = file.path
+                const processImage = new Promise((resolve, reject) => {
+                    sharp(path).rotate().resize(1600,1600).toFile('processedImage/' + file.filename, (err) => {
+                        sharp.cache(false);
+                        if (err) {
+                            console.log(err);
+                            reject(err);
+                        } else {
+                            console.log(`Processed file: ${path}`);
+                            resolve();
+                        }
+                    })
+                });
+                processImage.then(async () => {
+                    const mimeType = mime.lookup(file.originalname)
+                    if (mimeType && mimeType.includes("image/")) {
+                        const upload = await cloudinary.uploader.upload('processedImage/' + file.filename)
+                        image = upload.secure_url
+                        if (fs.existsSync(path)) fs.unlinkSync(path)
+                        if (fs.existsSync('processedImage/' + file.filename)) fs.unlinkSync('processedImage/' + file.filename)
+                    }
+                    if (mobile!='false'&&mobile) {
+                        await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage: image, phone: mobile } })
+                    } else {
+                        await userModel.updateOne({ _id: req.payload.id }, { $set: { name, profileImage: image } })
+                    }
+                    res.status(200).json({ message: "Profile updated successfully" })
+                }).catch((err) => {
+                    console.log(err);
+                })
+            } else {
+                if (mobile!='false'&&mobile) {
+                    await userModel.updateOne({ _id: req.payload.id }, { $set: { name, phone: mobile } })
+                } else {
+                    await userModel.updateOne({ _id: req.payload.id }, { $set: { name } })
+                }
+                res.status(200).json({ message: "Profile updated successfully" })
             }
-            res.status(200).json({ message: "Profile updated successfully" })
+
+
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
     }
 }
@@ -401,32 +439,32 @@ const createClub = async (req, res) => {
 
         //////////////////////////////////////////
 
-            let path = file.path
-            const processImage = new Promise((resolve, reject) => {
-                sharp(path).rotate().resize(476, 267).toFile( 'processedImage/'+ file.filename, (err) => {
-                    sharp.cache(false);
-                    if (err) {
-                        console.log(err);
-                        reject(err);
-                    } else {
-                        console.log(`Processed file: ${path}`);
-                        resolve();
-                    }
-                })
-            });
-            processImage.then(async () => {
-                const mimeType = mime.lookup(file.originalname)
-                if(mimeType && mimeType.includes("image/")){
-                    const upload = await cloudinary.uploader.upload('processedImage/'+ file.filename)
-                    image = upload.secure_url
-                    if (fs.existsSync(path)) fs.unlinkSync(path)
-                    if (fs.existsSync('processedImage/'+ file.filename)) fs.unlinkSync('processedImage/'+ file.filename)
+        let path = file.path
+        const processImage = new Promise((resolve, reject) => {
+            sharp(path).rotate().resize(476, 267).toFile('processedImage/' + file.filename, (err) => {
+                sharp.cache(false);
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    console.log(`Processed file: ${path}`);
+                    resolve();
                 }
-                await clubModel.create({ clubName, city, logo:image, startedYear: year, admins: [{ admin: id }], isProtected: isPrivate })
-                res.status(200).json({ message: 'Club Created Successfully' })
-            }).catch((err) => {
-                console.log(err);
             })
+        });
+        processImage.then(async () => {
+            const mimeType = mime.lookup(file.originalname)
+            if (mimeType && mimeType.includes("image/")) {
+                const upload = await cloudinary.uploader.upload('processedImage/' + file.filename)
+                image = upload.secure_url
+                if (fs.existsSync(path)) fs.unlinkSync(path)
+                if (fs.existsSync('processedImage/' + file.filename)) fs.unlinkSync('processedImage/' + file.filename)
+            }
+            await clubModel.create({ clubName, city, logo: image, startedYear: year, admins: [{ admin: id }], isProtected: isPrivate })
+            res.status(200).json({ message: 'Club Created Successfully' })
+        }).catch((err) => {
+            console.log(err);
+        })
 
         //////////////////////////////////////////
     } catch (error) {
@@ -443,7 +481,7 @@ const getClubs = async (req, res) => {
         const userId = req.payload.id
         const clubs = await clubModel.find({
             isProtected: false,
-            isBlocked:false,
+            isBlocked: false,
             $and: [
                 { 'members.member': { $ne: userId } },
                 { 'admins.admin': { $ne: userId } }
@@ -452,7 +490,7 @@ const getClubs = async (req, res) => {
 
         const protClubs = await clubModel.find({
             isProtected: true,
-            isBlocked:false,
+            isBlocked: false,
             $and: [
                 { 'members.member': { $ne: userId } },
                 { 'admins.admin': { $ne: userId } }
@@ -485,7 +523,7 @@ const getYourClubs = async (req, res) => {
     try {
         const userId = req.payload.id
         const clubs = await clubModel.find({
-            isBlocked:false,
+            isBlocked: false,
             $or: [
                 { 'members': { $elemMatch: { member: userId, isAccepted: true } } },
                 { 'admins.admin': userId }
@@ -493,7 +531,7 @@ const getYourClubs = async (req, res) => {
         }).populate('admins.admin');
 
         const reqClubs = await clubModel.find({
-            isBlocked:false,
+            isBlocked: false,
             $or: [
                 { 'members': { $elemMatch: { member: userId, isAccepted: false } } },
                 { 'admins.admin': userId }
@@ -566,18 +604,18 @@ const returnBike = async (req, res) => {
 
 ///////////////////CANCEL BOOKKING/////////////////
 
-const cancelBooking = async (req,res)=>{
+const cancelBooking = async (req, res) => {
     try {
         const { rentId, bikeId } = req.body
-        const {id} = req.payload
+        const { id } = req.payload
         const rent = await rentModel.findOne({ _id: rentId })
         await userModel.updateOne(
             { _id: id },
             {
-              $inc: { wallet: rent.amount }
+                $inc: { wallet: rent.amount }
             }
-          )
-                           
+        )
+
         await rentModel.deleteOne({ _id: rentId })
         await bikeModel.updateOne({ _id: bikeId }, { $set: { isBooked: false } })
         res.status(200).json({ message: 'Booking cancelled successfully' })
