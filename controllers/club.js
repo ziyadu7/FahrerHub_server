@@ -7,6 +7,10 @@ const { default: mongoose } = require('mongoose')
 const { generateClubToken } = require('../middlewares/auth')
 const chatModel = require('../models/chatModel')
 require('dotenv').config()
+const mime = require("mime-types")
+const sharp = require('sharp')
+const cloudinary = require('../config/cloudinary')
+const fs = require("fs");
 
 
 const loadClubHome = async (req, res) => {
@@ -61,8 +65,10 @@ const exitClub = async (req, res) => {
 
 const createRide = async (req, res) => {
     try {
-        const { startDate, endDate, from, destination, maxRiders, description, image,fromLatitude,fromLongitude,toLatitude,toLongitude } = req.body
+        const { startDate, endDate, from, destination, maxRiders, description,fromLatitude,fromLongitude,toLatitude,toLongitude,stop1,stop2,stop1Latitude,stop1Longitude,stop2Latitude,stop2Longitude } = req.body
         const { userId, clubId, role } = req.payload
+        let { file } = req
+        let image
 
         const alreadyRider = await rideModel.findOne({
             riders: { $elemMatch: { rider: userId } },
@@ -82,13 +88,38 @@ const createRide = async (req, res) => {
         if (alreadyRider || alreadyHead) {
             res.status(400).json({ errMsg: 'You have joined another ride between that date' })
         } else {
-            const newRide = await rideModel.create({ startDate, endDate, from, destination, image, maxRiders, description, head: userId, club: clubId,'fromLocation.longitude':fromLongitude,'fromLocation.latitude':fromLatitude,'destinationLocation.longitude':toLongitude,'destinationLocation.latitude':toLatitude })
-            if (role == 'admin') {
-                await clubModel.updateOne({ _id: clubId, 'admins.admin': userId }, { $inc: { 'admins.$.rideCount': 1 } })
-            } else {
-                await clubModel.updateOne({ _id: clubId, 'members.member': userId }, { $inc: { 'members.$.rideCount': 1 } })
-            }
-            res.status(200).json({ message: "Ride Created Successfully,wait for admin accept" })
+            
+            let path = file.path
+            const processImage = new Promise((resolve, reject) => {
+                sharp(path).rotate().resize(800, 400).toFile('processedImage/' + file.filename, (err) => {
+                    sharp.cache(false);
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        console.log(`Processed file: ${path}`);
+                        resolve();
+                    }
+                })
+            });
+            processImage.then(async () => {
+                const mimeType = mime.lookup(file.originalname)
+                if (mimeType && mimeType.includes("image/")) {
+                    const upload = await cloudinary.uploader.upload('processedImage/' + file.filename)
+                    image = upload.secure_url
+                    if (fs.existsSync(path)) fs.unlinkSync(path)
+                    if (fs.existsSync('processedImage/' + file.filename)) fs.unlinkSync('processedImage/' + file.filename)
+                }
+                await rideModel.create({ startDate,stop1,stop2, endDate, from, destination, image, maxRiders, description, head: userId, club: clubId,'fromLocation.longitude':fromLongitude,'fromLocation.latitude':fromLatitude,'destinationLocation.longitude':toLongitude,'destinationLocation.latitude':toLatitude,'stop1Location.longitude':stop1Longitude,'stop1Location.latitude':stop1Latitude,'stop2Location.latitude':stop2Latitude,'stop2Location.longitude':stop2Longitude })
+                if (role == 'admin') {
+                    await clubModel.updateOne({ _id: clubId, 'admins.admin': userId }, { $inc: { 'admins.$.rideCount': 1 } })
+                } else {
+                    await clubModel.updateOne({ _id: clubId, 'members.member': userId }, { $inc: { 'members.$.rideCount': 1 } })
+                }
+                res.status(200).json({ message: "Ride Created Successfully,wait for admin accept" })
+            }).catch((err) => {
+                console.log(err);
+            })
         }
     } catch (error) {
         res.status(500).json({ errMsg: 'Server Error' })

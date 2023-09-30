@@ -2,10 +2,13 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middlewares/auth')
 const clubController = require('../controllers/club')
+const multer = require('../config/multer')
+const upload = multer.createMulter();
+
 
 router.get('/home/:id',auth.verifyUserToken,clubController.loadClubHome)
 router.patch('/exitClub',auth.verifyClubMemberToken,clubController.exitClub)
-router.post('/createRide',auth.verifyClubMemberToken,clubController.createRide)
+router.post('/createRide',auth.verifyClubMemberToken,upload.single('image'),clubController.createRide)
 router.get('/getRides',auth.verifyClubMemberToken,clubController.getRides)
 router.get('/getImages',auth.verifyClubMemberToken,clubController.getImages)
 router.get('/singleRide/:rideId',auth.verifyClubMemberToken,clubController.loadSingleRide)

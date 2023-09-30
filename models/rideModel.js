@@ -9,6 +9,12 @@ const rideShema = mongoose.Schema({
         type:String,
         required:true
     },
+    stop1:{
+        type:String
+    },
+    stop2:{
+        type:String
+    },
     startDate:{
         type:Date,
         required:true
@@ -53,6 +59,22 @@ const rideShema = mongoose.Schema({
         default:false
     },
     fromLocation:{
+        longitude:{
+            type:Number,
+        },
+        latitude:{
+            type:Number
+        }
+    },
+    stop1Location:{
+        longitude:{
+            type:Number,
+        },
+        latitude:{
+            type:Number
+        }
+    },
+    stop2Location:{
         longitude:{
             type:Number,
         },

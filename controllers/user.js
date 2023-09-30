@@ -419,7 +419,7 @@ const editProfile = async (req, res) => {
                 res.status(200).json({ message: "Profile updated successfully" })
             }
 
-
+ 
         }
     } catch (error) {
         console.log(error);
@@ -465,8 +465,6 @@ const createClub = async (req, res) => {
         }).catch((err) => {
             console.log(err);
         })
-
-        //////////////////////////////////////////
     } catch (error) {
         console.log(error);
         res.status(500).json({ errMsg: "Server Error" })
