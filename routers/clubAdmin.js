@@ -8,7 +8,7 @@ const upload = multer.createMulter();
 router.get('/getClub',auth.verifyClubAdminToken,clubAdminController.getClub)
 router.get('/getMembers',auth.verifyClubAdminToken,clubAdminController.getMembers)
 router.patch('/removeMember',auth.verifyClubAdminToken,clubAdminController.removeMember)
-router.patch('/editClub',auth.verifyClubAdminToken,clubAdminController.editClub)
+router.patch('/editClub',auth.verifyClubAdminToken,upload.single('image'),clubAdminController.editClub)
 router.post('/addImage',auth.verifyClubAdminToken,upload.single('image'),clubAdminController.addImage)
 router.get('/getImages',auth.verifyClubAdminToken,clubAdminController.getImages)
 router.patch('/removeImage',auth.verifyClubAdminToken,clubAdminController.removeImage)

@@ -6,7 +6,7 @@ require('dotenv').config()
 const mime = require("mime-types")
 const cloudinary = require('../config/cloudinary')
 const fs = require("fs");
-
+const sharp = require('sharp')
 
 /////////////////SEND BLOCK MAIL//////////////
 function rideBlockMail(reason, name, email, adminName) {
@@ -104,8 +104,35 @@ const editClub = async (req, res) => {
     try {
         const { clubName, city, startedYear, logo } = req.body
         const { clubId } = req.payload
-        await clubModel.updateOne({ _id: clubId }, { $set: { clubName, city, startedYear, logo } })
-        res.status(200).json({ message: "Club updated successfully" })
+        let { file } = req
+        let image
+
+        let path = file.path
+        const processImage = new Promise((resolve, reject) => {
+            sharp(path).rotate().resize(476, 267).toFile('processedImage/' + file.filename, (err) => {
+                sharp.cache(false);
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    console.log(`Processed file: ${path}`);
+                    resolve();
+                }
+            })
+        });
+        processImage.then(async () => {
+            const mimeType = mime.lookup(file.originalname)
+            if (mimeType && mimeType.includes("image/")) {
+                const upload = await cloudinary.uploader.upload('processedImage/' + file.filename)
+                image = upload.secure_url
+                if (fs.existsSync(path)) fs.unlinkSync(path)
+                if (fs.existsSync('processedImage/' + file.filename)) fs.unlinkSync('processedImage/' + file.filename)
+            }
+            await clubModel.updateOne({ _id: clubId }, { $set: { clubName, city, startedYear, logo: image } })
+            res.status(200).json({ message: "Club updated successfully" })
+        }).catch((err) => {
+            console.log(err);
+        })
     } catch (error) {
         res.status(500).json({ errMsg: "Server Error" })
     }
@@ -133,7 +160,7 @@ const addImage = async (req, res) => {
         const { clubId } = req.payload
         let image
         const mimeType = mime.lookup(file.originalname)
-        if(mimeType && mimeType.includes("image/")){
+        if (mimeType && mimeType.includes("image/")) {
             const upload = await cloudinary.uploader.upload(file.path)
             image = upload.secure_url
             if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
