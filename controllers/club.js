@@ -337,7 +337,13 @@ const leftRide = async (req, res) => {
 const getRiders = async (req, res) => {
     try {
         const { clubId } = req.payload
-        const club = await clubModel.findOne({ _id: clubId }).populate('members.member').populate('admins.admin')
+        const club = await clubModel.findOne({ _id: clubId }).populate({
+            path: 'members.member',
+            select: 'name profileImage _id',
+          }).populate({
+            path: 'admins.admin',
+            select: 'name profileImage _id',
+          })
         const riders = club.members
         const admin = club.admins[0]
         res.status(200).json({ riders, admin })
