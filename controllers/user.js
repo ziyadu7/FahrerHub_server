@@ -756,9 +756,16 @@ const disLike = async (req, res) => {
 
 const addBike = async (req, res) => {
     try {
-        const { make, model, category, cc, image } = req.body
+        const { make, model, category, cc } = req.body
+        let { file } = req
         const { id } = req.payload
-
+        let image
+        const mimeType = mime.lookup(file.originalname)
+        if (mimeType && mimeType.includes("image/")) {
+            const upload = await cloudinary.uploader.upload(file.path)
+            image = upload.secure_url
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
+        }
         await userModel.updateOne({ _id: id }, { $set: { 'bike.model': model, 'bike.make': make, 'bike.category': category, 'bike.cc': cc, 'bike.image': image } })
 
         res.status(200).json({ message: 'Bike added successfully' })
@@ -772,13 +779,22 @@ const addBike = async (req, res) => {
 
 const editBike = async (req, res) => {
     try {
-        const { make, model, category, cc, image } = req.body
+        const { make, model, category, cc } = req.body
+        let { file } = req
         const { id } = req.payload
+        let image
+        const mimeType = mime.lookup(file?.originalname)
+        if (mimeType && mimeType.includes("image/")) {
+            const upload = await cloudinary.uploader.upload(file.path)
+            image = upload.secure_url
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
+        }
 
         await userModel.updateOne({ _id: id }, { $set: { 'bike.model': model, 'bike.make': make, 'bike.category': category, 'bike.cc': cc, 'bike.image': image } })
 
         res.status(200).json({ message: 'Bike edited successfully' })
     } catch (error) {
+        console.log(error);
         res.status(500).json({ errMsg: 'Server Error' })
     }
 }

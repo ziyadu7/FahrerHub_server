@@ -31,7 +31,7 @@ router.post('/addQuestion',auth.verifyUserToken,userController.addQuestion)
 router.post('/addAnswer',auth.verifyUserToken,userController.addAnswer)
 router.post('/addLike',auth.verifyUserToken,userController.addLike)
 router.post('/disLike',auth.verifyUserToken,userController.disLike)
-router.post('/addBike',auth.verifyUserToken,userController.addBike)
-router.post('/editBike',auth.verifyUserToken,userController.editBike)
+router.post('/addBike',auth.verifyUserToken,upload.single('image'),userController.addBike)
+router.post('/editBike',auth.verifyUserToken,upload.single('image'),userController.editBike)
 
 module.exports = router
