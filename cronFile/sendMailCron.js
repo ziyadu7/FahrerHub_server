@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const rentModel = require('../models/rentModel');
 const superAdminController = require('../controllers/superAdmin')
 require('dotenv').config()
-|
+
 mongoose.connect(process.env.MONGOCONNECTION, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -15,7 +15,7 @@ const rentMailSendCron = async () => {
         const currentDate = new Date();
 
         const rents = await rentModel.find({$and:[{toDate:{$lt: currentDate }},{returned:false}]}).populate('user').populate('bike')
-        console.log(rents);
+
         for(let i=0;i<rents.length;i++){
             superAdminController.rentMailSend(rents[i].user.name,rents[i].user.email,rents[i].bike,rents[i],'Ziyad')
         }
