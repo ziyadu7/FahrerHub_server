@@ -409,6 +409,7 @@ const editProfile = async (req, res) => {
                     res.status(200).json({ message: "Profile updated successfully" })
                 }).catch((err) => {
                     console.log(err);
+                    res.status(400).json({ errMsg: 'Error occured while processing the image' })
                 })
             } else {
                 if (mobile!='false'&&mobile) {
@@ -464,6 +465,7 @@ const createClub = async (req, res) => {
             res.status(200).json({ message: 'Club Created Successfully' })
         }).catch((err) => {
             console.log(err);
+            res.status(400).json({ errMsg: 'Error occured while processing the image' })
         })
     } catch (error) {
         console.log(error);

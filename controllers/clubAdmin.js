@@ -133,6 +133,7 @@ const editClub = async (req, res) => {
             res.status(200).json({ message: "Club updated successfully" })
         }).catch((err) => {
             console.log(err);
+            res.status(400).json({ errMsg: 'Error occured while processing the image' })
         })
         }else{
             await clubModel.updateOne({ _id: clubId }, { $set: { clubName, city, startedYear} })
