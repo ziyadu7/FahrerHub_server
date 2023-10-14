@@ -382,6 +382,9 @@ const editProfile = async (req, res) => {
             if (file) {
                 let path = file.path
                 const processImage = new Promise((resolve, reject) => {
+                    if (!fs.existsSync('processedImage')) {
+                        fs.mkdirSync('processedImage');
+                    }
                     sharp(path).rotate().resize(1600,1600).toFile('processedImage/' + file.filename, (err) => {
                         sharp.cache(false);
                         if (err) {
@@ -442,6 +445,9 @@ const createClub = async (req, res) => {
 
         let path = file.path
         const processImage = new Promise((resolve, reject) => {
+            if (!fs.existsSync('processedImage')) {
+                fs.mkdirSync('processedImage');
+            }
             sharp(path).rotate().resize(476, 267).toFile('processedImage/' + file.filename, (err) => {
                 sharp.cache(false);
                 if (err) {

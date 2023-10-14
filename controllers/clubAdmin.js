@@ -122,6 +122,9 @@ const editClub = async (req, res) => {
             })
         });
         processImage.then(async () => {
+            if (!fs.existsSync('processedImage')) {
+                fs.mkdirSync('processedImage');
+            }
             const mimeType = mime.lookup(file.originalname)
             if (mimeType && mimeType.includes("image/")) {
                 const upload = await cloudinary.uploader.upload('processedImage/' + file.filename)
