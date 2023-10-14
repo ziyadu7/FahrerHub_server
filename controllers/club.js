@@ -119,6 +119,7 @@ const createRide = async (req, res) => {
                 res.status(200).json({ message: "Ride Created Successfully,wait for admin accept" })
             }).catch((err) => {
                 console.log(err);
+                res.status(400).json({ errMsg: 'Error occured while processing the image' })
             })
         }
     } catch (error) {
