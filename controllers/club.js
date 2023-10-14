@@ -91,6 +91,9 @@ const createRide = async (req, res) => {
             
             let path = file.path
             const processImage = new Promise((resolve, reject) => {
+                if (!fs.existsSync('processedImage')) {
+                    fs.mkdirSync('processedImage');
+                }
                 sharp(path).rotate().resize(800, 400).toFile('processedImage/' + file.filename, (err) => {
                     sharp.cache(false);
                     if (err) {
