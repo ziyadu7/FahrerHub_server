@@ -25,6 +25,6 @@ const rentMailSendCron = async () => {
     }
 };
 
-cron.schedule('0 1 * * *', () => {
+cron.schedule('0 1 * * 1', () => {
     rentMailSendCron();
 });
